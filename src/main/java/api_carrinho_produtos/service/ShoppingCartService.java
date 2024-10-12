@@ -4,6 +4,8 @@ import api_carrinho_produtos.entities.CartProduct;
 import api_carrinho_produtos.entities.Product;
 import api_carrinho_produtos.entities.ShoppingCart;
 import api_carrinho_produtos.entities.User;
+import api_carrinho_produtos.exception.EntityNotFoundException;
+import api_carrinho_produtos.exception.OutOfStockException;
 import api_carrinho_produtos.repository.ProductRepository;
 import api_carrinho_produtos.repository.ShoppingCartRepository;
 import api_carrinho_produtos.repository.StockRepository;
@@ -30,7 +32,7 @@ public class ShoppingCartService {
     CartProductService cartProductService;
 
     public ShoppingCart findByUserId(Long userId) {
-        return repository.findCartByUserId(userId).orElseThrow(() -> new RuntimeException("Not found"));
+        return repository.findCartByUserId(userId).orElseThrow(() -> new EntityNotFoundException("Not found"));
     }
 
     @Transactional
@@ -53,11 +55,11 @@ public class ShoppingCartService {
     @Transactional
     public ShoppingCart addProductForCart(Long id) {
         ShoppingCart shoppingCart = createCartForUser();
-        Product product = productRepository.findById(id).orElseThrow(() -> new RuntimeException("Produto não encontrado"));
+        Product product = productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Produto não encontrado"));
         Optional<CartProduct> item = cartProductService.findByCartIdAndProductId(shoppingCart.getId(), id);
 
         if (product.getStock().getQuantity() == 0) {
-            throw new RuntimeException("Produto sem estoque");
+            throw new OutOfStockException("Produto sem estoque");
         }
 
         CartProduct cartProduct;
@@ -83,12 +85,12 @@ public class ShoppingCartService {
     @Transactional
     public void removeProductFromCart(Long id) {
         User authenticated = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        ShoppingCart shoppingCart  = repository.findCartByUserId(authenticated.getId()).orElseThrow(() -> new RuntimeException("Not found"));
-        Product product = productRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found"));
+        ShoppingCart shoppingCart  = repository.findCartByUserId(authenticated.getId()).orElseThrow(() -> new EntityNotFoundException("Not found"));
+        Product product = productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Product not found"));
         Optional<CartProduct> item = cartProductService.findByCartIdAndProductId(shoppingCart.getId(), id);
 
         if (item.isEmpty()) {
-            throw new RuntimeException("Produto não encontrado no carrinho");
+            throw new EntityNotFoundException("Produto não encontrado no carrinho");
         } else {
             CartProduct cartProduct = item.get();
             product.getStock().setQuantity(product.getStock().getQuantity() + cartProduct.getQuantity());

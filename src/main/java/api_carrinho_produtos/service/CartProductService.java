@@ -1,6 +1,7 @@
 package api_carrinho_produtos.service;
 
 import api_carrinho_produtos.entities.CartProduct;
+import api_carrinho_produtos.exception.EntityNotFoundException;
 import api_carrinho_produtos.repository.CartProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ public class CartProductService {
     }
 
     public CartProduct findById(Long id) {
-        return repository.findById(id).orElseThrow(() -> new RuntimeException("Not found"));
+        return repository.findById(id).orElseThrow(() -> new EntityNotFoundException("Not found"));
     }
 
     public Optional<CartProduct> findByCartIdAndProductId(Long cartId ,Long productId) {

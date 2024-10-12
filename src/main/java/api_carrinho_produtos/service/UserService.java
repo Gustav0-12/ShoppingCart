@@ -2,6 +2,7 @@ package api_carrinho_produtos.service;
 
 import api_carrinho_produtos.dto.UserResponseDTO;
 import api_carrinho_produtos.entities.User;
+import api_carrinho_produtos.exception.EntityNotFoundException;
 import api_carrinho_produtos.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,7 +27,7 @@ public class UserService {
     }
 
     public UserResponseDTO findById(Long id) {
-        User user = repository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = repository.findById(id).orElseThrow(() -> new EntityNotFoundException("User not found"));
         return new UserResponseDTO(user.getId(), user.getName(), user.getEmail());
     }
 

@@ -1,6 +1,7 @@
 package api_carrinho_produtos.service;
 import api_carrinho_produtos.dto.StockUpdateRequestDTO;
 import api_carrinho_produtos.entities.Stock;
+import api_carrinho_produtos.exception.EntityNotFoundException;
 import api_carrinho_produtos.repository.StockRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,7 +16,7 @@ public class StockService {
     StockRepository repository;
 
     public Stock findById(Long id) {
-        return repository.findById(id).orElseThrow(() -> new RuntimeException("Stock not found"));
+        return repository.findById(id).orElseThrow(() -> new EntityNotFoundException("Stock not found"));
     }
 
     public List<Stock> findAll() {
@@ -24,7 +25,7 @@ public class StockService {
 
     @Transactional
     public Stock updateStock(Long productId, StockUpdateRequestDTO data) {
-       Stock productStock = repository.findByProductId(productId).orElseThrow(() -> new RuntimeException("Stock not found"));
+       Stock productStock = repository.findByProductId(productId).orElseThrow(() -> new EntityNotFoundException("Stock not found"));
 
        if (productStock.getQuantity() != null) {
            productStock.setQuantity(productStock.getQuantity() + data.quantity());

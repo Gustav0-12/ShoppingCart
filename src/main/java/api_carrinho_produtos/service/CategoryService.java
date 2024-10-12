@@ -1,6 +1,7 @@
 package api_carrinho_produtos.service;
 
 import api_carrinho_produtos.entities.Category;
+import api_carrinho_produtos.exception.EntityNotFoundException;
 import api_carrinho_produtos.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,6 @@ public class CategoryService {
     }
 
     public Category findById(Long id) {
-        return repository.findById(id).orElseThrow(() -> new RuntimeException("Category not found"));
+        return repository.findById(id).orElseThrow(() -> new EntityNotFoundException("Category not found"));
     }
 }

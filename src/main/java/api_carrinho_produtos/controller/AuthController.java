@@ -4,6 +4,8 @@ import api_carrinho_produtos.dto.LoginRequestDTO;
 import api_carrinho_produtos.dto.RegisterRequestDTO;
 import api_carrinho_produtos.dto.UserResponseDTO;
 import api_carrinho_produtos.entities.User;
+import api_carrinho_produtos.exception.UniqueViolationException;
+import api_carrinho_produtos.exception.WrongCredentialsException;
 import api_carrinho_produtos.security.TokenService;
 import api_carrinho_produtos.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +39,7 @@ public class AuthController {
             String token = tokenService.generateToken(user);
             return ResponseEntity.ok().body(token);
         } else {
-            return ResponseEntity.badRequest().build();
+            throw new WrongCredentialsException("Senha incorreta");
         }
     }
 
@@ -46,7 +48,7 @@ public class AuthController {
         Optional<User> user = service.findByEmail(data.email());
 
         if (!user.isEmpty()) {
-            throw new RuntimeException("Usúario já cadastrado");
+            throw new UniqueViolationException("Usúario já cadastrado");
         }
 
         User newUser = new User();

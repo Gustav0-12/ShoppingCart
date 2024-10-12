@@ -5,6 +5,7 @@ import api_carrinho_produtos.dto.ProductResponseDTO;
 import api_carrinho_produtos.entities.Category;
 import api_carrinho_produtos.entities.Product;
 import api_carrinho_produtos.entities.Stock;
+import api_carrinho_produtos.exception.EntityNotFoundException;
 import api_carrinho_produtos.repository.CategoryRepository;
 import api_carrinho_produtos.repository.ProductRepository;
 import api_carrinho_produtos.repository.StockRepository;
@@ -36,7 +37,7 @@ public class ProductService {
     }
 
     public ProductResponseDTO findById(Long id) {
-        Product product = repository.findById(id).orElseThrow(() -> new RuntimeException("Product not found"));
+        Product product = repository.findById(id).orElseThrow(() -> new EntityNotFoundException("Product not found"));
         return new ProductResponseDTO(product.getId(), product.getName(), product.getDescription(), product.getPrice(), product.getCategory());
     }
 
@@ -49,7 +50,7 @@ public class ProductService {
         }
 
         if (categories.isEmpty()) {
-            throw new RuntimeException("Categoria inexistente");
+            throw new EntityNotFoundException("Categoria inexistente");
         }
 
         Product newProduct = new Product();
