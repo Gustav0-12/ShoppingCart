@@ -16,6 +16,7 @@ Este é um projeto de um sistema de carrinho de compras, desenvolvido em Java ut
 - **JWT (JSON Web Token)**: Para autenticação de API com tokens
 - **Hibernate**: ORM para gerenciamento do banco de dados
 - **MySQL**: Banco de dados relacional utilizado
+- **Redis**: Gerenciamento de cache
 - **Maven**: Gerenciador de dependências e build
 - **Git**: Controle de versão
 
