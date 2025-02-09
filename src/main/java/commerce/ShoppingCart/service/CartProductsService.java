@@ -1,6 +1,7 @@
 package commerce.ShoppingCart.service;
 
 import commerce.ShoppingCart.entities.CartProducts;
+import commerce.ShoppingCart.exceptions.NotFoundException;
 import commerce.ShoppingCart.repository.CartProductsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ public class CartProductsService {
     }
 
     public CartProducts findById(Long id) {
-        return repository.findById(id).orElseThrow(() -> new RuntimeException("Not found"));
+        return repository.findById(id).orElseThrow(() -> new NotFoundException("Not found"));
     }
 
     public void delete(Long id) {

@@ -1,6 +1,8 @@
 package commerce.ShoppingCart.service;
 
 import commerce.ShoppingCart.entities.Category;
+import commerce.ShoppingCart.exceptions.NotFoundException;
+import commerce.ShoppingCart.exceptions.UniqueViolationException;
 import commerce.ShoppingCart.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,7 +20,7 @@ public class CategoryService {
         Optional<Category> existingCategory = repository.findByName(category.getName());
 
         if (existingCategory.isPresent()) {
-            throw new RuntimeException("Categoria já registrada");
+            throw new UniqueViolationException("Categoria já registrada");
         }
         return repository.save(category);
     }
@@ -28,7 +30,7 @@ public class CategoryService {
     }
 
     public Category findById(Long id) {
-        return repository.findById(id).orElseThrow(() -> new RuntimeException("Categoria não encontrada"));
+        return repository.findById(id).orElseThrow(() -> new NotFoundException("Categoria não encontrada"));
     }
 
     public void deleteCategoryById(Long id) {

@@ -4,6 +4,8 @@ import commerce.ShoppingCart.dto.ProductRequestDTO;
 import commerce.ShoppingCart.dto.ProductResponseDTO;
 import commerce.ShoppingCart.entities.Category;
 import commerce.ShoppingCart.entities.Product;
+import commerce.ShoppingCart.exceptions.NotFoundException;
+import commerce.ShoppingCart.exceptions.UniqueViolationException;
 import commerce.ShoppingCart.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,7 +27,7 @@ public class ProductService {
         Category category = categoryService.findById(product.categoryId());
 
         if (existingProduct.isPresent()) {
-            throw new RuntimeException("Produto já registrado");
+            throw new UniqueViolationException("Produto já registrado");
         }
 
         Product newProduct = new Product();
@@ -44,7 +46,7 @@ public class ProductService {
     }
 
     public ProductResponseDTO findById(Long id) {
-        Product product = repository.findById(id).orElseThrow(() -> new RuntimeException("Produto não encontrado"));
+        Product product = repository.findById(id).orElseThrow(() -> new NotFoundException("Produto não encontrado"));
         return new ProductResponseDTO(product.getId() ,product.getName(), product.getDescription(), product.getPrice(), product.getCategory());
     }
 

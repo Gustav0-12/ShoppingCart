@@ -6,6 +6,7 @@ import commerce.ShoppingCart.entities.CartProducts;
 import commerce.ShoppingCart.entities.Product;
 import commerce.ShoppingCart.entities.ShoppingCart;
 import commerce.ShoppingCart.entities.User;
+import commerce.ShoppingCart.exceptions.NotFoundException;
 import commerce.ShoppingCart.repository.ProductRepository;
 import commerce.ShoppingCart.repository.ShoppingCartRepository;
 import commerce.ShoppingCart.repository.UserRepository;
@@ -34,7 +35,7 @@ public class ShoppingCartService {
     ProductRepository productRepository;
 
     public ShoppingCart createCartForUser(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Usuário não encontrado"));
         Optional<ShoppingCart> existingShoppingCart = repository.findCartByUserId(user.getId());
 
         if (existingShoppingCart.isPresent()) {
@@ -51,7 +52,7 @@ public class ShoppingCartService {
 
     public ShoppingCart addProductForCart(Long userId, Long productId) {
         ShoppingCart shoppingCart = createCartForUser(userId);
-        Product product = productRepository.findById(productId).orElseThrow(() -> new RuntimeException("Produto não encontrado"));
+        Product product = productRepository.findById(productId).orElseThrow(() -> new NotFoundException("Produto não encontrado"));
 
         List<CartProducts> existingProductInShoppingCart = shoppingCart.getItems().stream().filter(cartProduct -> cartProduct.getProduct().getId().equals(product.getId())).toList();
         CartProducts cartProducts;
@@ -73,13 +74,13 @@ public class ShoppingCartService {
     }
 
     public void removeProductFromCart(Long userId, Long productId) {
-        ShoppingCart shoppingCart = repository.findCartByUserId(userId).orElseThrow(() -> new RuntimeException("Carrinho não encontrado"));
-        Product product = productRepository.findById(productId).orElseThrow(() -> new RuntimeException("Produto não encontrado"));
+        ShoppingCart shoppingCart = repository.findCartByUserId(userId).orElseThrow(() -> new NotFoundException("Carrinho não encontrado"));
+        Product product = productRepository.findById(productId).orElseThrow(() -> new NotFoundException("Produto não encontrado"));
 
         List<CartProducts> existingProductInShoppingCart = shoppingCart.getItems().stream().filter(cartProduct -> cartProduct.getProduct().getId().equals(product.getId())).toList();
         CartProducts cartProducts;
         if (existingProductInShoppingCart.isEmpty()) {
-            throw new RuntimeException("Produto não encontrado");
+            throw new NotFoundException("Produto não encontrado");
         } else {
             cartProducts = existingProductInShoppingCart.get(0);
             shoppingCart.getItems().remove(cartProducts);
