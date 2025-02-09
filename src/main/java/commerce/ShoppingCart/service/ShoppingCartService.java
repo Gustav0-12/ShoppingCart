@@ -2,6 +2,8 @@ package commerce.ShoppingCart.service;
 
 import commerce.ShoppingCart.dto.ShoppingCartDTO;
 import commerce.ShoppingCart.dto.UserResponseDTO;
+import commerce.ShoppingCart.entities.CartProducts;
+import commerce.ShoppingCart.entities.Product;
 import commerce.ShoppingCart.entities.ShoppingCart;
 import commerce.ShoppingCart.entities.User;
 import commerce.ShoppingCart.repository.ProductRepository;
@@ -43,6 +45,46 @@ public class ShoppingCartService {
             newShoppingCart.setItems(new ArrayList<>());
             newShoppingCart.setTotalPrice(BigDecimal.ZERO);
             return repository.save(newShoppingCart);
+        }
+    }
+
+    public ShoppingCart addProductForCart(Long userId, Long productId) {
+        ShoppingCart shoppingCart = createCartForUser(userId);
+        Product product = productRepository.findById(productId).orElseThrow(() -> new RuntimeException("Produto não encontrado"));
+
+        List<CartProducts> existingProductInShoppingCart = shoppingCart.getItems().stream().filter(cartProduct -> cartProduct.getProduct().getId().equals(product.getId())).toList();
+        CartProducts cartProducts;
+        if (existingProductInShoppingCart.isEmpty()) {
+            cartProducts = new CartProducts();
+            cartProducts.setShoppingCart(shoppingCart);
+            cartProducts.setQuantity(1);
+            cartProducts.setProduct(product);
+            cartProducts.setTotalPrice(product.getPrice());
+            shoppingCart.getItems().add(cartProducts);
+        } else {
+            cartProducts = existingProductInShoppingCart.get(0);
+            cartProducts.setQuantity(cartProducts.getQuantity() + 1);
+            cartProducts.setTotalPrice(product.getPrice().multiply(new BigDecimal(cartProducts.getQuantity())));
+        }
+        shoppingCart.CalculateTotalPrice();
+        cartProductsService.save(cartProducts);
+        return repository.save(shoppingCart);
+    }
+
+    public void removeProductFromCart(Long userId, Long productId) {
+        ShoppingCart shoppingCart = repository.findCartByUserId(userId).orElseThrow(() -> new RuntimeException("Carrinho não encontrado"));
+        Product product = productRepository.findById(productId).orElseThrow(() -> new RuntimeException("Produto não encontrado"));
+
+        List<CartProducts> existingProductInShoppingCart = shoppingCart.getItems().stream().filter(cartProduct -> cartProduct.getProduct().getId().equals(product.getId())).toList();
+        CartProducts cartProducts;
+        if (existingProductInShoppingCart.isEmpty()) {
+            throw new RuntimeException("Produto não encontrado");
+        } else {
+            cartProducts = existingProductInShoppingCart.get(0);
+            shoppingCart.getItems().remove(cartProducts);
+            shoppingCart.CalculateTotalPrice();
+            cartProductsService.delete(cartProducts.getId());
+            repository.save(shoppingCart);
         }
     }
 
