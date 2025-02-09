@@ -10,11 +10,10 @@ public record ShoppingCartDTO(
         Long id,
         Instant creationTime,
         BigDecimal totalPrice,
-        UserResponseDTO user,
-        List<CartProductsDTO> items) {
+        List<CartProductsDTO> items,
+        UserResponseDTO user) {
 
     public record CartProductsDTO(
-            Long id,
             Integer quantity,
             BigDecimal price,
             Product product) {

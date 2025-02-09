@@ -22,6 +22,7 @@ public class Product implements Serializable {
     private String name;
     private String description;
     private BigDecimal price;
-    @OneToOne
+    @ManyToOne
+    @JoinColumn(name = "category_id")
     private Category category;
 }

@@ -24,6 +24,7 @@ public class ShoppingCartService {
     @Autowired
     ShoppingCartRepository repository;
 
+    @Autowired
     CartProductsService cartProductsService;
 
     @Autowired
@@ -89,14 +90,16 @@ public class ShoppingCartService {
     }
 
     public ShoppingCartDTO findByUserId(Long userId) {
-        ShoppingCart shoppingCart = repository.findCartByUserId(userId).orElseThrow(() -> new RuntimeException("Carrinho não encontrado"));
+        ShoppingCart shoppingCart = repository.findCartByUserId(userId).orElse(createCartForUser(userId));
 
         UserResponseDTO user = new UserResponseDTO(shoppingCart.getUser().getId() ,shoppingCart.getUser().getName(), shoppingCart.getUser().getEmail());
         List<ShoppingCartDTO.CartProductsDTO> items = shoppingCart.getItems().stream().map(item ->
-                new ShoppingCartDTO.CartProductsDTO(item.getId(),
-                        item.getQuantity(), item.getTotalPrice(),
-                        item.getProduct())).toList();
+                new ShoppingCartDTO.CartProductsDTO(
+                        item.getQuantity(),
+                        item.getTotalPrice(),
+                        item.getProduct())).
+                toList();
 
-        return new ShoppingCartDTO(shoppingCart.getId(), shoppingCart.getCreationTime(), shoppingCart.getTotalPrice(), user, items);
+        return new ShoppingCartDTO(shoppingCart.getId(), shoppingCart.getCreationTime(), shoppingCart.getTotalPrice(), items, user);
     }
 }

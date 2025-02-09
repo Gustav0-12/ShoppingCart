@@ -35,17 +35,17 @@ public class ProductService {
         newProduct.setCategory(category);
         repository.save(newProduct);
 
-        return new ProductResponseDTO(newProduct.getName(), newProduct.getDescription(), newProduct.getPrice(),newProduct.getCategory());
+        return new ProductResponseDTO(newProduct.getId(), newProduct.getName(), newProduct.getDescription(), newProduct.getPrice(),newProduct.getCategory());
     }
 
     public List<ProductResponseDTO> findAll() {
         List<Product> products = repository.findAll();
-        return products.stream().map(product -> new ProductResponseDTO(product.getName(), product.getDescription(), product.getPrice(), product.getCategory())).toList();
+        return products.stream().map(product -> new ProductResponseDTO(product.getId(), product.getName(), product.getDescription(), product.getPrice(), product.getCategory())).toList();
     }
 
     public ProductResponseDTO findById(Long id) {
         Product product = repository.findById(id).orElseThrow(() -> new RuntimeException("Produto não encontrado"));
-        return new ProductResponseDTO(product.getName(), product.getDescription(), product.getPrice(), product.getCategory());
+        return new ProductResponseDTO(product.getId() ,product.getName(), product.getDescription(), product.getPrice(), product.getCategory());
     }
 
     public void deleteProductById(Long id) {

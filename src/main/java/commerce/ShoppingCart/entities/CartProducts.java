@@ -22,7 +22,9 @@ public class CartProducts implements Serializable {
     private Integer quantity;
     private BigDecimal totalPrice;
     @ManyToOne
+    @JoinColumn(name = "shoppingcart_id")
     private ShoppingCart shoppingCart;
     @ManyToOne
+    @JoinColumn(name = "product_id")
     private Product product;
 }
