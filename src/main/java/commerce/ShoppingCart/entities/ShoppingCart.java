@@ -23,6 +23,7 @@ public class ShoppingCart implements Serializable {
     private Long id;
     private Instant creationTime;
     private BigDecimal totalPrice;
+    @ManyToOne
     private User user;
     @OneToMany(mappedBy = "shoppingCart")
     private List<CartProducts> items;
