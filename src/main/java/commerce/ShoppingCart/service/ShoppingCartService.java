@@ -11,6 +11,7 @@ import commerce.ShoppingCart.repository.ProductRepository;
 import commerce.ShoppingCart.repository.ShoppingCartRepository;
 import commerce.ShoppingCart.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -34,15 +35,14 @@ public class ShoppingCartService {
     @Autowired
     ProductRepository productRepository;
 
-    public ShoppingCart createCartForUser(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Usuário não encontrado"));
-        Optional<ShoppingCart> existingShoppingCart = repository.findCartByUserId(user.getId());
+    public ShoppingCart createCartForUser(@AuthenticationPrincipal User usuarioAutenticado) {
+        Optional<ShoppingCart> existingShoppingCart = repository.findCartByUserId(usuarioAutenticado.getId());
 
         if (existingShoppingCart.isPresent()) {
             return existingShoppingCart.get();
         } else {
             ShoppingCart newShoppingCart = new ShoppingCart();
-            newShoppingCart.setUser(user);
+            newShoppingCart.setUser(usuarioAutenticado);
             newShoppingCart.setCreationTime(Instant.now());
             newShoppingCart.setItems(new ArrayList<>());
             newShoppingCart.setTotalPrice(BigDecimal.ZERO);
@@ -50,8 +50,8 @@ public class ShoppingCartService {
         }
     }
 
-    public ShoppingCart addProductForCart(Long userId, Long productId) {
-        ShoppingCart shoppingCart = createCartForUser(userId);
+    public ShoppingCart addProductForCart(@AuthenticationPrincipal User usuarioAutenticado, Long productId) {
+        ShoppingCart shoppingCart = createCartForUser(usuarioAutenticado);
         Product product = productRepository.findById(productId).orElseThrow(() -> new NotFoundException("Produto não encontrado"));
 
         List<CartProducts> existingProductInShoppingCart = shoppingCart.getItems().stream().filter(cartProduct -> cartProduct.getProduct().getId().equals(product.getId())).toList();
@@ -73,8 +73,8 @@ public class ShoppingCartService {
         return repository.save(shoppingCart);
     }
 
-    public void removeProductFromCart(Long userId, Long productId) {
-        ShoppingCart shoppingCart = repository.findCartByUserId(userId).orElseThrow(() -> new NotFoundException("Carrinho não encontrado"));
+    public void removeProductFromCart(@AuthenticationPrincipal User usuarioAutenticado, Long productId) {
+        ShoppingCart shoppingCart = repository.findCartByUserId(usuarioAutenticado.getId()).orElseThrow(() -> new NotFoundException("Carrinho não encontrado"));
         Product product = productRepository.findById(productId).orElseThrow(() -> new NotFoundException("Produto não encontrado"));
 
         List<CartProducts> existingProductInShoppingCart = shoppingCart.getItems().stream().filter(cartProduct -> cartProduct.getProduct().getId().equals(product.getId())).toList();
@@ -90,8 +90,8 @@ public class ShoppingCartService {
         }
     }
 
-    public ShoppingCartDTO findByUserId(Long userId) {
-        ShoppingCart shoppingCart = repository.findCartByUserId(userId).orElse(createCartForUser(userId));
+    public ShoppingCartDTO findUserCart(@AuthenticationPrincipal User usuarioAutenticado) {
+        ShoppingCart shoppingCart = repository.findCartByUserId(usuarioAutenticado.getId()).orElse(createCartForUser(usuarioAutenticado));
 
         UserResponseDTO user = new UserResponseDTO(shoppingCart.getUser().getId() ,shoppingCart.getUser().getName(), shoppingCart.getUser().getEmail());
         List<ShoppingCartDTO.CartProductsDTO> items = shoppingCart.getItems().stream().map(item ->

@@ -17,12 +17,6 @@ public class UserController {
     @Autowired
     UserService service;
 
-    @PostMapping("/add")
-    public ResponseEntity<UserResponseDTO> saveUser(@RequestBody UserRequestDTO user) {
-        UserResponseDTO newUser = service.saveUser(user);
-        return ResponseEntity.ok().body(newUser);
-    }
-
     @GetMapping
     public ResponseEntity<List<UserResponseDTO>> findAll() {
         List<UserResponseDTO> users = service.findAll();

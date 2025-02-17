@@ -3,9 +3,11 @@ package commerce.ShoppingCart.controller;
 import commerce.ShoppingCart.dto.ShoppingCartDTO;
 import commerce.ShoppingCart.dto.UserResponseDTO;
 import commerce.ShoppingCart.entities.ShoppingCart;
+import commerce.ShoppingCart.entities.User;
 import commerce.ShoppingCart.service.ShoppingCartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,15 +19,15 @@ public class ShoppingCartController {
     @Autowired
     ShoppingCartService service;
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<ShoppingCartDTO> findByUserId(@PathVariable Long userId) {
-        ShoppingCartDTO shoppingCart = service.findByUserId(userId);
+    @GetMapping("/user")
+    public ResponseEntity<ShoppingCartDTO> findUserCart(@AuthenticationPrincipal User usuarioAutenticado) {
+        ShoppingCartDTO shoppingCart = service.findUserCart(usuarioAutenticado);
         return ResponseEntity.ok().body(shoppingCart);
     }
 
-    @PostMapping("/{userId}/add/{productId}")
-    public ResponseEntity<ShoppingCartDTO> addProductForCart(@PathVariable Long userId, @PathVariable Long productId) {
-        ShoppingCart shoppingCart = service.addProductForCart(userId, productId);
+    @PostMapping("/add/{productId}")
+    public ResponseEntity<ShoppingCartDTO> addProductForCart(@AuthenticationPrincipal User usuarioAutenticado, @PathVariable Long productId) {
+        ShoppingCart shoppingCart = service.addProductForCart(usuarioAutenticado, productId);
 
         List<ShoppingCartDTO.CartProductsDTO> items = shoppingCart.getItems().stream().map(
                 item -> new ShoppingCartDTO.CartProductsDTO(
@@ -38,9 +40,9 @@ public class ShoppingCartController {
         return ResponseEntity.ok().body(new ShoppingCartDTO(shoppingCart.getId(), shoppingCart.getCreationTime(), shoppingCart.getTotalPrice(), items, user));
     }
 
-    @DeleteMapping("/{userId}/remove/{productId}")
-    public ResponseEntity<Void> removeProductFromCart(@PathVariable Long userId, @PathVariable Long productId) {
-        service.removeProductFromCart(userId, productId);
+    @DeleteMapping("/remove/{productId}")
+    public ResponseEntity<Void> removeProductFromCart(@AuthenticationPrincipal User usuarioAutenticado, @PathVariable Long productId) {
+        service.removeProductFromCart(usuarioAutenticado, productId);
         return ResponseEntity.noContent().build();
     }
 }
